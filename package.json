@@ -1,0 +1,49 @@
+{
+  "name": "iron-container",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc ava tests",
+    "test:watch": "ava --watch tests",
+    "report": "nyc report --reporter=html",
+    "build": "BABEL_ENV=production babel src -d dist",
+    "lint": "eslint src tests",
+    "commit": "git-cz",
+    "check-coverage": "nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100"
+  },
+  "keywords": [],
+  "author": "Philipp Sporrer <philipp.sporrer@commercetools.de>",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "0.14.0",
+    "babel-cli": "6.7.5",
+    "babel-preset-es2015": "6.6.0",
+    "babel-preset-stage-0": "6.5.0",
+    "cz-conventional-changelog": "1.1.5",
+    "eslint": "2.7.0",
+    "eslint-config-airbnb": "7.0.0",
+    "ghooks": "1.2.1",
+    "nyc": "6.4.0",
+    "validate-commit-msg": "2.5.0"
+  },
+  "ava": {
+    "require": [
+      "babel-register",
+      "babel-core/register"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "tests"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "pre-commit": "npm run test && npm run check-coverage"
+    }
+  }
+}
