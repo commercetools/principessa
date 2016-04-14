@@ -1,6 +1,6 @@
 {
   "name": "iron-container",
-  "version": "1.0.0",
+  "version": "0.0.0-semantically-released",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,8 @@
     "lint": "eslint src tests",
     "commit": "git-cz",
     "check-coverage": "nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100",
-    "report-coverage": "nyc report --reporter=lcov | codecov"
+    "report-coverage": "nyc report --reporter=lcov | codecov",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "keywords": [],
   "author": "Philipp Sporrer <philipp.sporrer@commercetools.de>",
@@ -28,7 +29,8 @@
     "ghooks": "1.2.1",
     "nyc": "6.4.0",
     "sinon": "1.17.3",
-    "validate-commit-msg": "2.5.0"
+    "validate-commit-msg": "2.5.0",
+    "semantic-release": "^4.3.5"
   },
   "ava": {
     "require": [
@@ -52,5 +54,9 @@
   },
   "dependencies": {
     "ajv": "3.8.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/commercetools/principessa.git"
   }
 }
