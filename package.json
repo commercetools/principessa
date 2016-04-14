@@ -25,6 +25,7 @@
     "eslint-config-airbnb": "7.0.0",
     "ghooks": "1.2.1",
     "nyc": "6.4.0",
+    "sinon": "1.17.3",
     "validate-commit-msg": "2.5.0"
   },
   "ava": {
@@ -43,7 +44,11 @@
       "path": "./node_modules/cz-conventional-changelog"
     },
     "ghooks": {
-      "pre-commit": "npm run test && npm run check-coverage"
+      "pre-commit": "npm run test && npm run check-coverage",
+      "commit-msg": "node_modules/.bin/validate-commit-msg"
     }
+  },
+  "dependencies": {
+    "ajv": "3.8.10"
   }
 }
