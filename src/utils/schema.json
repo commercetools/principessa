@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "properties": {
+    "storageProvider": {
+      "enum": ["s3"]
+    },
+    "storageProviderConfig": {
+      "type": "object"
+    },
+    "assets": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "string"
+        }
+      }
+    },
+    "options": {
+      "type": "object"
+    }
+  },
+  "required": ["options"],
+  "additionalProperties": false
+}

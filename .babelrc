@@ -6,7 +6,8 @@
   "ignore": "tests",
   "env": {
     "development": {
-      "sourceMaps": "inline"
+      "sourceMaps": "inline",
+      "plugins": ["rewire"]
     }
   }
 }
