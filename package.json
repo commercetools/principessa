@@ -13,7 +13,7 @@
     "check-coverage": "nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100",
     "report-coverage": "nyc report --reporter=lcov | codecov",
     "html-coverage": "nyc report --reporter=html",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release pre && npm run build && npm publish && semantic-release post"
   },
   "keywords": [],
   "author": "Philipp Sporrer <philipp.sporrer@commercetools.de>",
