@@ -7,7 +7,7 @@
     "test": "nyc ava tests",
     "test:watch": "ava --watch tests",
     "report": "nyc report --reporter=html",
-    "build": "BABEL_ENV=production babel src -d dist --copy-files",
+    "build": "BABEL_ENV=production ./node_modules/.bin/babel src -d dist --copy-files",
     "lint": "eslint src tests",
     "commit": "git-cz",
     "check-coverage": "nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100",
