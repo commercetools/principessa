@@ -1,22 +1,25 @@
 import test from 'ava'
 import {
   validate, moveAssetsToOptions, getStorageProvider, downloadAssets,
-  resolveAssets, __RewireAPI__ as utilsRewireApi,
+  resolveAssets, uploadOutputs, callbackRequest, __RewireAPI__ as utilsRewireApi,
 } from '../../src/utils'
 import sinon from 'sinon'
 
-/* eslint-disable no-param-reassign */
+/* eslint-disable no-param-reassign, no-underscore-dangle */
 test.beforeEach(t => {
   const getStorageProviderSpy = sinon.spy(() =>
     ({ download: () => Promise.resolve('local.csv') })
   )
+  const fetch = sinon.spy()
   utilsRewireApi.__Rewire__('getStorageProvider', getStorageProviderSpy)
+  utilsRewireApi.__Rewire__('fetch', fetch)
   t.context.getStorageProviderSpy = getStorageProviderSpy
+  t.context.fetch = fetch
 })
 test.afterEach(t => {
   t.context.getStorageProviderSpy.reset()
 })
-/* eslint-enable no-param-reassign */
+/* eslint-enable no-param-reassign, no-underscore-dangle */
 
 test('validate - should accept a payload with an empty options array', t => {
   const actual = validate({ options: {} })
@@ -28,6 +31,8 @@ test('validate - should accept a payload with multiple assets', t => {
   const payload = {
     options: {},
     assets: { inputFileOne: 'http://url.com', inputFileTwo: 'http://url2.com' },
+    storageProvider: 's3',
+    storageProviderConfig: {},
   }
   const actual = validate(payload)
 
@@ -38,6 +43,7 @@ test('validate - should accept a payload with storage provider s3', t => {
   const payload = {
     options: {},
     storageProvider: 's3',
+    storageProviderConfig: {},
   }
   const actual = validate(payload)
 
@@ -63,6 +69,31 @@ test('validate - should accept a payload with storage provider config', t => {
   const actual = validate(payload)
 
   t.is(actual, true)
+})
+
+test('validate - should accept a payload with output config', t => {
+  const payload = {
+    options: {},
+    storageProvider: 's3',
+    storageProviderConfig: { bucket: 'chicken-wings' },
+    output: { outputFile: 'path.csv' },
+    callbackUrl: 'url',
+  }
+  const actual = validate(payload)
+
+  t.is(actual, true)
+})
+
+test('validate - should not accept a payload with output but without callbackUrl config', t => {
+  const payload = {
+    options: {},
+    storageProvider: 's3',
+    storageProviderConfig: { bucket: 'chicken-wings' },
+    output: { outputFile: 'path.csv' },
+  }
+  const actual = validate(payload)
+
+  t.is(actual, false)
 })
 
 test('moveAssetsToOptions - should add assets to options', t => {
@@ -115,13 +146,42 @@ test('downloadAssets - should call the providers download method for each asset'
   })
 })
 
-test('resolveAssets - should call getStorageProvider with the given provider type'
+test('resolveAssets - should add downloaded assets to the input options'
 , t => {
-  const { context: { getStorageProviderSpy } } = t
-  const payload = {
-    storageProvider: 's3',
+  const provider = {
+    download: sinon.stub().returns(Promise.resolve('local/file.csv')),
   }
-  resolveAssets(payload)
-  t.is(getStorageProviderSpy.calledOnce, true)
-  t.is(getStorageProviderSpy.firstCall.args[0], 's3')
+  const payload = {
+    assets: { asset1: 'fileNameOnFileStorage.csv', asset2: 'fileNameOnFileStorage.csv' },
+    options: { outputFolder: '/some/folder' },
+  }
+  resolveAssets(provider, payload).then(optionsWithAssets => {
+    t.is(optionsWithAssets, {
+      outputFolder: '/some/folder', asset1: 'local/file.csv', asset2: 'local/file.csv',
+    })
+  })
+})
+
+test('uploadOutputs - should upload the configured files to storage provider', t => {
+  const provider = {
+    upload: sinon.stub().returns(Promise.resolve('http://utl.to.test.csv')),
+  }
+  const outputs = { outputFile: 'products.csv', outputFile2: 'customers.csv' }
+  return uploadOutputs(provider, outputs).then(references => {
+    t.is(provider.upload.firstCall.args[0], 'products.csv')
+    t.is(provider.upload.secondCall.args[0], 'customers.csv')
+    t.deepEqual(references, {
+      outputFile: 'http://utl.to.test.csv',
+      outputFile2: 'http://utl.to.test.csv',
+    })
+  })
+})
+
+test('callbackRequest - should do a POST request to the url with the given payload', t => {
+  const payload = { payload: 'abc' }
+  callbackRequest('url', payload)
+  t.is(t.context.fetch.calledOnce, true)
+  t.is(t.context.fetch.firstCall.args[0], 'url')
+  t.is(t.context.fetch.firstCall.args[1].method, 'POST')
+  t.is(t.context.fetch.firstCall.args[1].body, JSON.stringify(payload))
 })

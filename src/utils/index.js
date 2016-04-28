@@ -1,6 +1,7 @@
 import initAjv from 'ajv'
 import aws from '../storage-providers/aws.js'
 import payloadSchema from './schema.json'
+import fetch from 'node-fetch'
 
 const ajv = initAjv({ removeAdditional: true })
 export const validate = ajv.compile(payloadSchema)
@@ -27,13 +28,9 @@ export const getStorageProvider = (provider, config) => {
   }
 }
 
-export const resolveAssets = (payload) => {
+export const resolveAssets = (storageProvider, payload) => {
   // create storage provider
-  const {
-    storageProvider: provider, storageProviderConfig, options, assets,
-  } = payload
-  const storageProvider =
-    getStorageProvider(provider, storageProviderConfig)
+  const { options, assets } = payload
 
   // download all assets
   return storageProvider && assets
@@ -44,3 +41,20 @@ export const resolveAssets = (payload) => {
       )
     : Promise.resolve(options)
 }
+
+export const uploadOutputs = ({ upload }, outputs) =>
+  Promise.all(Object.keys(outputs).map(output => upload(outputs[output])))
+  .then(references =>
+    references.reduce((acc, reference, i) =>
+        Object.assign({}, acc, { [Object.keys(outputs)[i]]: reference })
+    , {})
+  )
+
+export const callbackRequest = (url, payload) =>
+  fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })

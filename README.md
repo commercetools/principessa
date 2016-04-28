@@ -39,7 +39,7 @@ principessa().execute({
 })
 ```
 
-### Initialization
+### Documentation
 
 Principessa currently exposes a function, which returns an object (the public API) with currently only one public method `execute`.  
 The function that is exposed currently takes no arguments, but may later accept some custom configuration.  
@@ -47,61 +47,94 @@ The `execute` method accepts on parameter, which configures principessa for this
 - `payload`: the payload corresponds to the input that your service should get. If your input contains any files that need to be downloaded first, you need to indicate them separately. [See here](#payload) for how the payload should be structured.
 - `onRun(options)`: this function will be called when principessa is done preparing your options. It will extend the `options` you specified in the payload with the resolved `assets`'s paths, so your service is good to go with local assets.
 - `onError(errors)`: callback function that will be called with an array of errors that occurred during payload validation or execution of your service
-- `onComplete()`: callback function that will be called once your service is done processing. (Later there will be support for automatically calling a custom url with the output of your service.)
+- `onComplete()`: callback function that will be called once your service is done processing. You can optionally return an object, that will be appended to the [callback payload](#callback)
 
-#### <a name="payload"></a> Payload format
+### <a name="payload"></a> Payload format
 
 The payload must conform with this [JSON schema](http://json-schema.org/):
 ```json
-  {
-    "type": "object",
-    "properties": {
-      "storageProvider": {
-        "enum": ["s3"]
-      },
-      "storageProviderConfig": {
-        "type": "object"
-      },
-      "assets": {
-        "type": "object",
-        "patternProperties": {
-          ".*": {
-            "type": "string"
-          }
+{
+  "type": "object",
+  "properties": {
+    "storageProvider": {
+      "enum": ["s3"]
+    },
+    "storageProviderConfig": {
+      "type": "object"
+    },
+    "assets": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "string"
         }
-      },
-      "options": {
-        "type": "object"
       }
     },
-    "required": ["options"],
-    "additionalProperties": false
-  }
+    "options": {
+      "type": "object"
+    },
+    "output": {
+      "type": "object"
+    },
+    "callbackUrl": {
+      "type": "string"
+    }
+  },
+  "required": ["options"],
+  "additionalProperties": false
+}
 ```
 Example:
 ```json
 {
   "storageProvider": "s3",
   "storageProviderConfig": {
-    "bucket": "bucket-with-files"
+    "Bucket": "bucket-with-files"
   },
   "assets": {
     "inputFile1": "my-input-file.json"
   },
   "options": {
     "serviceSpecificOption123": true,
-    "continueOnProblems": false
+    "continueOnProblems": false,
+    "outputFolder": "/output"
+  },
+  "output": {
+    "transformedFile": "/output/my-output-file.json"
+  },
+  "callbackUrl": "http://scheduler.commercetools.io/${taskId}/done"
+}
+```
+#### Assets
+
+In the assets section you should list all files that are needed as Input for your service.
+Every asset will be downloaded from the configured storage provider, and stored locally. Then the asset will be appended to the options object, by using the key and the resolved path of the asset.
+Example:
+```js
+{
+  storageProvider: "s3",
+  storageProviderConfig: {
+    Bucket: 'your-amazon-s3-bucket'
+  },
+  options: {
+    someOption: true
+  },
+  assets: {
+    inputFile: 'products.csv'
   }
 }
 ```
-If you configured the storage provider correctly, your `onRun` method will get called with the following `options`:
+The `onRun` method would then be called with the following options, which are ready to be used by your service.
 ```js
 {
-  serviceSpecificOption123: true,
-  continueOnProblems: false,
-  inputFile1: '/localWorkerDir/my-input-file.json'
+  someOptions: true,
+  inputFile: '/localWorkerDir/products.csv'
 }
 ```
+
+#### Options
+
+The options object is basically a pass-through for your service. You can put any kind of input that your worker needs here.
 
 #### Supported storage providers
 
@@ -114,4 +147,34 @@ Example:
     "bucket": "bucket-with-assets"
   }
 }
+```
+
+#### <a name="callback"></a> Output and callbackUrl
+
+If your service produces files as output, you can list these in the output object.
+They will then be uploaded to your configured storage provider, and passed to the callbackUrl in a POST request.
+Example: You have a product export service, that produces a csv file, named 'products.csv', and puts it in the `/output` folder. The following configuration would pick this file up, upload it to S3 and call the callbackUrl with a reference to the file:
+```js
+{
+  "storageProvider": "s3",
+  "storageProviderConfig": {
+    "bucket": "bucket-with-assets"
+  },
+  options: {
+    outputFolder: '/output'
+  },
+  output: {
+    productsFile: 'products.csv'
+  },
+  callbackUrl: 'http://scheduler.commercetoools.io/jobs/<job-id>/done'
+}
+```
+This would result in a POST request like this:
+```bash
+curl
+  -H "Content-Type: application/json"
+  -X POST -d '{
+    "productsFile":"http://aws.amazon.com/2c4950gu8n94gmx2495cm.csv"
+  }'
+  http://scheduler.commercetoools.io/jobs/<job-id>/done
 ```

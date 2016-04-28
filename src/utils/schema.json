@@ -17,8 +17,19 @@
     },
     "options": {
       "type": "object"
+    },
+    "output": {
+      "type": "object"
+    },
+    "callbackUrl": {
+      "type": "string"
     }
   },
   "required": ["options"],
+  "dependencies": {
+    "output": ["callbackUrl", "storageProvider"],
+    "assets": ["storageProvider"],
+    "storageProvider": ["storageProviderConfig"]
+  },
   "additionalProperties": false
 }

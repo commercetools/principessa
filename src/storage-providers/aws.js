@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk'
 import path from 'path'
-import { createWriteStream } from 'fs'
+import { createWriteStream, createReadStream } from 'fs'
 
 /*
  * this requires AWS credentials being set in the environment
@@ -21,6 +21,18 @@ export default (config = {}) => {
           resolve(localPath)
         })
         .on('error', reject)
+      })
+    },
+    upload(file) {
+      return new Promise((resolve, reject) => {
+        const fileStream = createReadStream(file)
+        s3.upload({ Bucket, Key: file, Body: fileStream }, (err, data) => {
+          if (err) {
+            reject({ err, data })
+          } else {
+            resolve(data)
+          }
+        })
       })
     },
   }

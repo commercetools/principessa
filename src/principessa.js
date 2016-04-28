@@ -1,9 +1,8 @@
-import { validate, resolveAssets } from './utils'
-
-export const defaultConfig = {}
+import {
+  validate, resolveAssets, uploadOutputs, callbackRequest, getStorageProvider,
+} from './utils'
 
 export default function (/* customConfig = {} */) {
-  // const config = Object.assign({}, defaultConfig, customConfig)
   return {
     execute({ payload, onRun, onComplete, onError }) {
       // validate payload
@@ -12,13 +11,27 @@ export default function (/* customConfig = {} */) {
         onError(validate.errors)
         return Promise.resolve()
       }
+
+      const { storageProvider: provider, storageProviderConfig } = payload
+      const storageProvider = getStorageProvider(provider, storageProviderConfig)
       // resolve assets
-      return resolveAssets(payload)
+      return resolveAssets(storageProvider, payload)
         .then(options => onRun(options))
         .then(() => {
           if (onComplete) {
-            onComplete()
+            return onComplete()
           }
+          return {}
+        })
+        .then(callbackPayload => {
+          if (payload.output) {
+            // upload output files to s3
+            return uploadOutputs(storageProvider, payload.output).then(references =>
+              // call callback with payload
+              callbackRequest(Object.assign({}, callbackPayload, references))
+            )
+          }
+          return Promise.resolve()
         })
     },
   }

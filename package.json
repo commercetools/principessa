@@ -63,7 +63,8 @@
   },
   "dependencies": {
     "ajv": "3.8.10",
-    "aws-sdk": "2.3.3"
+    "aws-sdk": "2.3.3",
+    "node-fetch": "1.5.1"
   },
   "repository": {
     "type": "git",
