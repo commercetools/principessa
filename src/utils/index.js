@@ -52,7 +52,7 @@ export const uploadOutputs = ({ upload }, outputs) =>
 
 export const callbackRequest = (url, payload) =>
   fetch(url, {
-    method: 'POST',
+    method: 'PATCH',
     body: JSON.stringify(payload),
     headers: {
       'Content-Type': 'application/json',

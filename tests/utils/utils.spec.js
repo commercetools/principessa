@@ -177,11 +177,11 @@ test('uploadOutputs - should upload the configured files to storage provider', t
   })
 })
 
-test('callbackRequest - should do a POST request to the url with the given payload', t => {
+test('callbackRequest - should do a PATCH request to the url with the given payload', t => {
   const payload = { payload: 'abc' }
   callbackRequest('url', payload)
   t.is(t.context.fetch.calledOnce, true)
   t.is(t.context.fetch.firstCall.args[0], 'url')
-  t.is(t.context.fetch.firstCall.args[1].method, 'POST')
+  t.is(t.context.fetch.firstCall.args[1].method, 'PATCH')
   t.is(t.context.fetch.firstCall.args[1].body, JSON.stringify(payload))
 })
