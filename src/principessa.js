@@ -28,10 +28,14 @@ export default function (/* customConfig = {} */) {
             // upload output files to s3
             return uploadOutputs(storageProvider, payload.output).then(references =>
               // call callback with payload
-              callbackRequest(Object.assign({}, callbackPayload, references))
+              callbackRequest(Object.assign({}, callbackPayload, references, { status: 'success' }))
             )
           }
           return Promise.resolve()
+        })
+        .catch((err) => {
+          callbackRequest({ status: 'failed' })
+          throw err
         })
     },
   }

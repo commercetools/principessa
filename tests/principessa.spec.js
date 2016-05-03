@@ -75,7 +75,7 @@ test('container - should call the onComplete callback if the service finished', 
   })
 })
 
-test(`container - should call uploadOutputs and callbackRequest with the given
+test.serial(`container - should call uploadOutputs and callbackRequest with the given
 output configuration`, t => {
   const payload = {
     storageProvider: 's3', storageProviderConfig: { bucket: 'chicken-wings' },
@@ -88,6 +88,27 @@ output configuration`, t => {
     t.is(t.context.uploadOutputsSpy.calledOnce, true)
     t.deepEqual(t.context.uploadOutputsSpy.firstCall.args[1], { file: 'output.csv' })
     t.is(t.context.callbackRequestSpy.calledOnce, true)
-    t.deepEqual(t.context.callbackRequestSpy.firstCall.args[0], { taskId: '123', file: 'http://some.url.com' })
+    t.deepEqual(
+      t.context.callbackRequestSpy.firstCall.args[0],
+      { taskId: '123', file: 'http://some.url.com', status: 'success' }
+    )
+  })
+})
+
+test.serial(`container - should call callbackRequest with status "failed" when there is
+an exeption in the process`, t => {
+  const payload = {
+    storageProvider: 's3', storageProviderConfig: { bucket: 'chicken-wings' },
+    options: {}, output: { file: 'output.csv' }, callbackUrl: 'url',
+  }
+  const onRun = () => Promise.reject()
+  const onComplete = () => null
+  return container().execute({ payload, onRun, onComplete })
+  .catch(() => {
+    t.is(t.context.callbackRequestSpy.calledOnce, true)
+    t.deepEqual(
+      t.context.callbackRequestSpy.firstCall.args[0],
+      { status: 'failed' }
+    )
   })
 })
