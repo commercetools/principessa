@@ -12,7 +12,11 @@ export default function (/* customConfig = {} */) {
         return Promise.resolve()
       }
 
-      const { storageProvider: provider, storageProviderConfig } = payload
+      const {
+        storageProvider: provider, storageProviderConfig,
+        output,
+        callbackUrl,
+      } = payload
       const storageProvider = getStorageProvider(provider, storageProviderConfig)
       // resolve assets
       return resolveAssets(storageProvider, payload)
@@ -24,11 +28,14 @@ export default function (/* customConfig = {} */) {
           return {}
         })
         .then(callbackPayload => {
-          if (payload.output) {
+          if (output) {
             // upload output files to s3
-            return uploadOutputs(storageProvider, payload.output).then(references =>
+            return uploadOutputs(storageProvider, output).then(references =>
               // call callback with payload
-              callbackRequest(Object.assign({}, callbackPayload, references, { status: 'success' }))
+              callbackRequest(
+                callbackUrl,
+                Object.assign({}, callbackPayload, references, { status: 'success' })
+              )
             )
           }
           return Promise.resolve()

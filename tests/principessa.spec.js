@@ -88,8 +88,9 @@ output configuration`, t => {
     t.is(t.context.uploadOutputsSpy.calledOnce, true)
     t.deepEqual(t.context.uploadOutputsSpy.firstCall.args[1], { file: 'output.csv' })
     t.is(t.context.callbackRequestSpy.calledOnce, true)
+    t.is(t.context.callbackRequestSpy.firstCall.args[0], 'url')
     t.deepEqual(
-      t.context.callbackRequestSpy.firstCall.args[0],
+      t.context.callbackRequestSpy.firstCall.args[1],
       { taskId: '123', file: 'http://some.url.com', status: 'success' }
     )
   })
