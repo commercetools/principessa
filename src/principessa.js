@@ -41,7 +41,7 @@ export default function (/* customConfig = {} */) {
           return Promise.resolve()
         })
         .catch((err) => {
-          callbackRequest({ status: 'failed' })
+          callbackRequest(callbackUrl, { status: 'failed' })
           throw err
         })
     },

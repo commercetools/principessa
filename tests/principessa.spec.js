@@ -107,8 +107,9 @@ an exeption in the process`, t => {
   return container().execute({ payload, onRun, onComplete })
   .catch(() => {
     t.is(t.context.callbackRequestSpy.calledOnce, true)
+    t.is(t.context.callbackRequestSpy.firstCall.args[0], 'url')
     t.deepEqual(
-      t.context.callbackRequestSpy.firstCall.args[0],
+      t.context.callbackRequestSpy.firstCall.args[1],
       { status: 'failed' }
     )
   })
