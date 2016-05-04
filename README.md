@@ -148,6 +148,11 @@ Example:
   }
 }
 ```
+Also you need to put store your credentials in environment variables:
+```sh
+export AWS_ACCESS_KEY_ID=***
+export AWS_SECRET_ACCESS_KEY=***
+```
 
 #### <a name="callback"></a> Output and callbackUrl
 

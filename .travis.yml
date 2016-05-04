@@ -2,21 +2,26 @@ sudo: false
 language: node_js
 cache:
   directories:
-    - node_modules
+  - node_modules
 branches:
   except:
-    - "/^v\\d+\\.\\d+\\.\\d+$/"
+  - /^v\d+\.\d+\.\d+$/
 notifications:
   email: false
 node_js:
-  - '4'
+- '4'
 before_install:
-  - npm i -g npm@^2.0.0
+- npm i -g npm@^2.0.0
 before_script:
-  - npm prune
+- npm prune
+- ./ci-build-credentials-file.sh
 script:
-  - npm run test
-  - npm run check-coverage
+- npm run test
+- npm run check-coverage
 after_success:
-  - npm run report-coverage
-  - npm run semantic-release
+- npm run report-coverage
+- npm run semantic-release
+env:
+  global:
+  - secure: AZlHwNHkVqo4NTRILrHeMSAkERIvnCureCKhz/+ogl5hXcsy9CbX2ysJDN2bI+EyVFikRm0Xv/FX+u0VcirC5ERrsxmqE9k49ODX5zTIOpC3EcaBZIqM41wS8Mfz73sm4zpfHv96q6oKkNsnq8lueeC8n1z/upi63CEuw+9rX1Cn+OENw4LEEBMOTTY2zVLnlabMNiBBuJLzu2dFJmlO1WMwvi7C26RPHAkv0Mkcj/tN15Dskpk3dVQQ98hqWkCDtlpgVoo/i9JPaNJ43C70J5ChpGqXV+UIWH0TWvpN2IwdV2DieE+ogTBSzkpaM2KVpZS/Ah+DsO2whiKlkAY0deqmcz7HJFMQohg+JoThLNTy11XsRMbfDWYzz6LhSREp2cTxZIpFLJSrYT75pR0HvN/4JCKT5uaL6SOOf2M1r7aQ4cKv7T45iJLWoOtCcYlel2eeP4xznOwj0htFRUVpa1iphCD3seECjgwpkRHZZNBLzdoW4Da8YZxxaPCVDDhSOIx9InsFtnVDBcG2A52ABy+ELLQgZFEfQoOUnlgyVgL8E59IH3FDIHoBkgCnxVvWhlWBJG4TnhF+IIiYrNIGSWTqWlp8qgwx9AAS5BSM/yPOFL3wvx4Ni2vmBytFXaJZow3W0Hjc8vrQu8ZWM+r/qYKrC4Bq1It+pywAbM74FfA=
+  - secure: MVSp7Gpnhw4liwcYzQpVrl+9df6ZkTcVItILezTIajX3JcCyz9mlL9G/6rAqvcVw2UsXju8a4zhzBYLb98m0NoCk6T/ivWKC4T1Bs0GFAQK3Ipssrs+L6L9Thf5kWx6YCFD3irEaVa7cD1LqnTPlyOHILMCpDEu09KNv30Ov/tO36RoHAXbefrZwvm8g8r9IV3pPNiPwLlVVwKk9hAgilFnKegNzlfSXIlZ9vubPbB5dyqstpZtyyn3xdnp18UofvKCVflhRac164eszGzWmoXoaTTnkBFd1N0mJdLfqBpTKEySfdNCCEXjFBtYkGx4mkUT3IULDl1TgMfyNh6q7PZc6uyKATNrQX8+Ng3S5plVOzC1ZlovwDpgnjsVyXK0ZHnHi5HXTc3C3oggTtddL68IShFVkuKQ6R+0dLHkPauvyC+c+wXp6uWnQX5L2RevubxkdCzi8wEkIBxeIxuomZuFnC/WDN/SDy/7kVAbpmLtAKJAxpneVoxPYLjmE+jZwT8yK/mBqcOT37dxcrMl350tLlrZVcNYLUzSH2rPUtY1lW7+NA7Ve38f+1b/e9rLvo5fQ6kwb8V1g7VQEz1SB0U8ExPOSdkdFlQ4r26g6LMuBMXI0jccV5vJz0GuJpOADmxQaMVmQ+bjTUbLYuhVCASTV+YmSi4+O4IsFj/8xtX8=
