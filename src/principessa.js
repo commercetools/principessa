@@ -32,10 +32,12 @@ export default function (/* customConfig = {} */) {
             // upload output files to s3
             return uploadOutputs(storageProvider, output).then(references =>
               // call callback with payload
-              callbackRequest(
-                callbackUrl,
-                Object.assign({}, callbackPayload, references, { status: 'success' })
-              )
+              callbackRequest(callbackUrl, Object.assign(
+                {},
+                callbackPayload,
+                { outputFiles: references },
+                { status: 'success' }
+              ))
             )
           }
           return Promise.resolve()

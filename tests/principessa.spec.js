@@ -91,7 +91,7 @@ output configuration`, t => {
     t.is(t.context.callbackRequestSpy.firstCall.args[0], 'url')
     t.deepEqual(
       t.context.callbackRequestSpy.firstCall.args[1],
-      { taskId: '123', file: 'http://some.url.com', status: 'success' }
+      { taskId: '123', outputFiles: { file: 'http://some.url.com' }, status: 'success' }
     )
   })
 })

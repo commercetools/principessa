@@ -17,13 +17,14 @@ const getConfig = (c) =>
 test('upload - should upload the given file to the configured bucket',
 t => {
   // we use cuid so to generate unique file names, so we can run tests in parallel
-  const fileName = `${cuid()}.txt`
+  const fileName = 'testFile.txt'
   const file = tempWrite.sync('Hello Node.js', fileName)
   const provider = aws(getConfig())
   return provider.upload(file, fileName)
     .then((response) => {
       t.is(typeof response, 'string')
-    }).then(() => provider.delete(fileName))
+      return response
+    }).then((fileToDelete) => provider.delete(fileToDelete))
 })
 
 test('download - should download the given file from the configured bucket',
@@ -33,9 +34,10 @@ t => {
   const provider = aws(getConfig({ downloadFolder }))
   const file = tempWrite.sync('Hello Node.js', fileName)
   return provider.upload(file, fileName)
-    .then(() =>
-      provider.download(fileName).then(localPath => {
+    .then((fileToDownload) =>
+      provider.download(fileToDownload).then(localPath => {
         t.is(localPath, path.join(downloadFolder, fileName))
+        return fileToDownload
       })
     ).then(() => provider.delete(fileName))
 })
@@ -47,9 +49,9 @@ t => {
   const provider = aws(getConfig({ downloadFolder }))
   const file = tempWrite.sync('Hello Node.js', fileName)
   return provider.upload(file, fileName)
-    .then(() =>
-      provider.delete(fileName).then(res => {
+    .then((fileToDelete) =>
+      provider.delete(fileToDelete).then(res => {
         t.deepEqual(res, {})
       })
-    ).then(() => provider.delete(fileName))
+    )
 })

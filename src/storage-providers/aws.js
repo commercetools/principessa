@@ -21,7 +21,7 @@ export default (config = {}) => {
   return {
     download(file) {
       return new Promise((resolve, reject) => {
-        const localPath = path.join(downloadFolder, file)
+        const localPath = path.join(downloadFolder, path.basename(file))
         const localFile = createWriteStream(localPath)
         s3.getObject({ Bucket, Key: file })
         .createReadStream()
@@ -32,14 +32,18 @@ export default (config = {}) => {
         .on('error', reject)
       })
     },
-    upload(file, fileName = cuid()) {
+    upload(file, _fileName) {
+      let fileName = _fileName
+      if (!fileName) {
+        fileName = path.basename(file)
+      }
       return new Promise((resolve, reject) => {
         const fileStream = createReadStream(file)
-        s3.upload({ Bucket, Key: fileName, Body: fileStream }, (err, data) => {
+        s3.upload({ Bucket, Key: path.join(cuid(), fileName), Body: fileStream }, (err, data) => {
           if (err) {
             reject({ err, data })
           } else {
-            resolve(data.Location)
+            resolve(data.key)
           }
         })
       })

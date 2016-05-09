@@ -10,7 +10,7 @@ import sinon from 'sinon'
 /* eslint-disable no-param-reassign, no-underscore-dangle */
 test.beforeEach(t => {
   t.context.s3uploadMock = sinon.spy((conf, callback) => {
-    callback(null, { Location: 'http://aws.url.to.file' })
+    callback(null, { key: 'new-file-name' })
   })
   t.context.s3deleteMock = sinon.spy((conf, callback) => {
     callback(null, {})
@@ -60,8 +60,8 @@ t => {
   return provider.upload(file, 'message.txt').then((response) => {
     t.is(t.context.s3uploadMock.calledOnce, true)
     t.is(t.context.s3uploadMock.firstCall.args[0].Bucket, 'test')
-    t.is(t.context.s3uploadMock.firstCall.args[0].Key, 'message.txt')
-    t.deepEqual(response, 'http://aws.url.to.file')
+    t.is(path.basename(t.context.s3uploadMock.firstCall.args[0].Key), 'message.txt')
+    t.deepEqual(response, 'new-file-name')
   })
 })
 
@@ -73,7 +73,7 @@ t => {
     t.is(t.context.s3uploadMock.calledOnce, true)
     t.is(t.context.s3uploadMock.firstCall.args[0].Bucket, 'test')
     t.is(typeof t.context.s3uploadMock.firstCall.args[0].Key, 'string')
-    t.deepEqual(response, 'http://aws.url.to.file')
+    t.deepEqual(response, 'new-file-name')
   })
 })
 
@@ -94,7 +94,7 @@ t => {
   return provider.upload(file, 'message.txt').catch(({ err, data }) => {
     t.is(s3uploadMock.calledOnce, true)
     t.is(s3uploadMock.firstCall.args[0].Bucket, 'test')
-    t.is(s3uploadMock.firstCall.args[0].Key, 'message.txt')
+    t.is(path.basename(s3uploadMock.firstCall.args[0].Key), 'message.txt')
     t.is(err instanceof Error, true)
     t.deepEqual(data, {})
   })
